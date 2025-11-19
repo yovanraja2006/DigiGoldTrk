@@ -69,9 +69,15 @@ export default function Auth({ onAuthenticated }) {
             <input
               id="security-code"
               type="password"
+              inputMode="numeric"
+              pattern="[0-9]*"
               placeholder="••••"
               value={securityCode}
-              onChange={(e) => setSecurityCode(e.target.value)}
+              onChange={(e) => {
+                // Only allow numbers
+                const value = e.target.value.replace(/[^0-9]/g, '')
+                setSecurityCode(value)
+              }}
               required
               autoFocus
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none text-center text-2xl tracking-widest"
