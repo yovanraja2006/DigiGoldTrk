@@ -60,8 +60,8 @@ export default function EntryList({ refreshTrigger, onAddClick, onDataUpdate }) 
     // Apply search filter
     if (searchTerm) {
       filtered = filtered.filter(entry => 
-        entry.notes?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         entry.amount.toString().includes(searchTerm) ||
+        entry.grams?.toString().includes(searchTerm) ||
         entry.currency.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
@@ -175,13 +175,13 @@ export default function EntryList({ refreshTrigger, onAddClick, onDataUpdate }) 
   const exportToCSV = () => {
     if (entries.length === 0) return
 
-    const headers = ['Date & Time', 'Amount', 'Currency', 'Receipt URL', 'Notes']
+    const headers = ['Date & Time', 'Amount', 'Grams', 'Currency', 'Receipt URL']
     const rows = entries.map(entry => [
       new Date(entry.created_at).toLocaleString(),
       entry.amount,
+      entry.grams || '',
       entry.currency,
-      entry.receipt_url || '',
-      entry.notes || ''
+      entry.receipt_url || ''
     ])
 
     const csvContent = [
@@ -267,7 +267,7 @@ export default function EntryList({ refreshTrigger, onAddClick, onDataUpdate }) 
                 </svg>
                 <input
                   type="text"
-                  placeholder="Search by amount, currency, or notes..."
+                  placeholder="Search by amount, grams, or currency..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition-all"
@@ -392,10 +392,10 @@ export default function EntryList({ refreshTrigger, onAddClick, onDataUpdate }) 
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">S. No</th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Date & Time</th>
                   <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Amount</th>
+                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Grams</th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Currency</th>
                   <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Screenshot</th>
                   <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Receipt</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Notes</th>
                   <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Actions</th>
                 </tr>
               </thead>
@@ -408,6 +408,9 @@ export default function EntryList({ refreshTrigger, onAddClick, onDataUpdate }) 
                     </td>
                     <td className="py-3 px-4 text-sm text-gray-800 text-right font-medium">
                       ₹{parseFloat(entry.amount).toFixed(2)}
+                    </td>
+                    <td className="py-3 px-4 text-sm text-gray-800 text-right font-medium">
+                      {entry.grams ? parseFloat(entry.grams).toFixed(4) : '—'}
                     </td>
                     <td className="py-3 px-4 text-sm">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -443,9 +446,6 @@ export default function EntryList({ refreshTrigger, onAddClick, onDataUpdate }) 
                       ) : (
                         <span className="text-gray-400 text-sm">—</span>
                       )}
-                    </td>
-                    <td className="py-3 px-4 text-sm text-gray-600 max-w-xs truncate">
-                      {entry.notes || '—'}
                     </td>
                     <td className="py-3 px-4 text-center">
                       {deleteConfirm === entry.id ? (
@@ -497,14 +497,20 @@ export default function EntryList({ refreshTrigger, onAddClick, onDataUpdate }) 
                     {entry.currency}
                   </span>
                 </div>
-                <div className="mb-3">
-                  <p className="text-2xl font-bold text-gray-800">
-                    ₹{parseFloat(entry.amount).toFixed(2)}
-                  </p>
+                <div className="mb-3 grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Amount</p>
+                    <p className="text-xl font-bold text-gray-800">
+                      ₹{parseFloat(entry.amount).toFixed(2)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Grams</p>
+                    <p className="text-xl font-bold text-gray-800">
+                      {entry.grams ? parseFloat(entry.grams).toFixed(4) : '—'}
+                    </p>
+                  </div>
                 </div>
-                {entry.notes && (
-                  <p className="text-sm text-gray-600 mb-3">{entry.notes}</p>
-                )}
                 <div className="flex gap-2 flex-wrap">
                   {entry.screenshot_path && (
                     <button

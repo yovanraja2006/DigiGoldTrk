@@ -6,7 +6,6 @@ export default function EntryForm({ onEntryAdded }) {
   const [grams, setGrams] = useState('')
   const [currency, setCurrency] = useState('Gold')
   const [receiptUrl, setReceiptUrl] = useState('')
-  const [notes, setNotes] = useState('')
   const [screenshot, setScreenshot] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -61,13 +60,10 @@ export default function EntryForm({ onEntryAdded }) {
         throw new Error('Amount must be a positive number')
       }
 
-      // Validate grams (optional)
-      let gramsNum = null
-      if (grams) {
-        gramsNum = parseFloat(grams)
-        if (isNaN(gramsNum) || gramsNum <= 0) {
-          throw new Error('Grams must be a positive number')
-        }
+      // Validate grams (required)
+      const gramsNum = parseFloat(grams)
+      if (isNaN(gramsNum) || gramsNum <= 0) {
+        throw new Error('Grams must be a positive number')
       }
 
       let screenshotPath = null
@@ -87,7 +83,6 @@ export default function EntryForm({ onEntryAdded }) {
             currency,
             screenshot_path: screenshotPath,
             receipt_url: receiptUrl || null,
-            notes: notes || null,
           },
         ])
         .select()
@@ -102,7 +97,6 @@ export default function EntryForm({ onEntryAdded }) {
       setGrams('')
       setCurrency('Gold')
       setReceiptUrl('')
-      setNotes('')
       setScreenshot(null)
       document.getElementById('screenshot-input').value = ''
       
@@ -181,7 +175,7 @@ export default function EntryForm({ onEntryAdded }) {
         {/* Grams/Weight */}
         <div>
           <label htmlFor="grams" className="block text-sm font-medium text-gray-700 mb-1">
-            Weight in Grams {currency === 'Gold' ? '(or Pavan)' : ''} (optional)
+            Weight in Grams {currency === 'Gold' ? '(or Pavan)' : ''} *
           </label>
           <input
             id="grams"
@@ -191,6 +185,7 @@ export default function EntryForm({ onEntryAdded }) {
             placeholder={currency === 'Gold' ? '1.5 grams or 0.1875 pavan' : '10.5 grams'}
             value={grams}
             onChange={(e) => setGrams(e.target.value)}
+            required
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none"
           />
           <p className="mt-1 text-xs text-gray-500">
@@ -225,21 +220,6 @@ export default function EntryForm({ onEntryAdded }) {
             value={receiptUrl}
             onChange={(e) => setReceiptUrl(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none"
-          />
-        </div>
-
-        {/* Notes */}
-        <div>
-          <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
-            Notes (optional)
-          </label>
-          <textarea
-            id="notes"
-            rows="3"
-            placeholder="Add any additional notes..."
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none resize-none"
           />
         </div>
 
