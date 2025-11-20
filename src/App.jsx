@@ -32,6 +32,57 @@ function App() {
     setLoading(false)
   }, [])
 
+  // Auto-lock after 5 minutes of inactivity
+  useEffect(() => {
+    if (!isAuthenticated) return
+
+    const INACTIVITY_TIMEOUT = 5 * 60 * 1000 // 5 minutes in milliseconds
+    let inactivityTimer
+
+    const resetTimer = () => {
+      // Clear existing timer
+      if (inactivityTimer) {
+        clearTimeout(inactivityTimer)
+      }
+
+      // Set new timer
+      inactivityTimer = setTimeout(() => {
+        // Auto-lock: sign out user
+        localStorage.removeItem('isAuthenticated')
+        localStorage.removeItem('authTime')
+        setIsAuthenticated(false)
+      }, INACTIVITY_TIMEOUT)
+    }
+
+    // Events that indicate user activity
+    const activityEvents = [
+      'mousedown',
+      'mousemove',
+      'keypress',
+      'scroll',
+      'touchstart',
+      'click'
+    ]
+
+    // Add event listeners for user activity
+    activityEvents.forEach(event => {
+      document.addEventListener(event, resetTimer)
+    })
+
+    // Initialize timer
+    resetTimer()
+
+    // Cleanup
+    return () => {
+      if (inactivityTimer) {
+        clearTimeout(inactivityTimer)
+      }
+      activityEvents.forEach(event => {
+        document.removeEventListener(event, resetTimer)
+      })
+    }
+  }, [isAuthenticated])
+
   const handleAuthenticated = () => {
     setIsAuthenticated(true)
   }
