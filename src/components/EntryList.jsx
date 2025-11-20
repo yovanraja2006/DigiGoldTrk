@@ -392,7 +392,8 @@ export default function EntryList({ refreshTrigger, onAddClick, onDataUpdate }) 
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">S. No</th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Date & Time</th>
                   <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Amount</th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Currency</th>
+                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Gold (g/p)</th>
+                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Silver</th>
                   <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Screenshot</th>
                   <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Receipt</th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Notes</th>
@@ -409,14 +410,23 @@ export default function EntryList({ refreshTrigger, onAddClick, onDataUpdate }) 
                     <td className="py-3 px-4 text-sm text-gray-800 text-right font-medium">
                       ₹{parseFloat(entry.amount).toFixed(2)}
                     </td>
-                    <td className="py-3 px-4 text-sm">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        entry.currency === 'Gold' 
-                          ? 'bg-yellow-100 text-yellow-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {entry.currency}
-                      </span>
+                    <td className="py-3 px-4 text-sm text-right">
+                      {entry.currency === 'Gold' ? (
+                        <span className="text-yellow-700 font-medium">
+                          ₹{parseFloat(entry.amount).toFixed(2)}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 text-sm text-right">
+                      {entry.currency === 'Silver' ? (
+                        <span className="text-gray-700 font-medium">
+                          ₹{parseFloat(entry.amount).toFixed(2)}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
                     </td>
                     <td className="py-3 px-4 text-center">
                       {entry.screenshot_path ? (
@@ -497,10 +507,25 @@ export default function EntryList({ refreshTrigger, onAddClick, onDataUpdate }) 
                     {entry.currency}
                   </span>
                 </div>
-                <div className="mb-3">
-                  <p className="text-2xl font-bold text-gray-800">
-                    ₹{parseFloat(entry.amount).toFixed(2)}
-                  </p>
+                <div className="mb-3 grid grid-cols-3 gap-2">
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Total</p>
+                    <p className="text-lg font-bold text-gray-800">
+                      ₹{parseFloat(entry.amount).toFixed(2)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Gold (g/p)</p>
+                    <p className="text-lg font-bold text-yellow-700">
+                      {entry.currency === 'Gold' ? `₹${parseFloat(entry.amount).toFixed(2)}` : '—'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-1">Silver</p>
+                    <p className="text-lg font-bold text-gray-700">
+                      {entry.currency === 'Silver' ? `₹${parseFloat(entry.amount).toFixed(2)}` : '—'}
+                    </p>
+                  </div>
                 </div>
                 {entry.notes && (
                   <p className="text-sm text-gray-600 mb-3">{entry.notes}</p>
