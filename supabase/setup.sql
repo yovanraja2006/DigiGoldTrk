@@ -41,11 +41,14 @@ CREATE TABLE public.investments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     amount NUMERIC(12, 2) NOT NULL CHECK (amount > 0),
+    grams NUMERIC(12, 4) CHECK (grams > 0),
     currency TEXT NOT NULL CHECK (currency IN ('Gold', 'Silver')),
     screenshot_path TEXT,
-    receipt_url TEXT,
-    notes TEXT
+    receipt_url TEXT
 );
+
+-- Add comment to explain the grams column
+COMMENT ON COLUMN public.investments.grams IS 'Weight in grams (or pavan for gold)';
 
 -- Create index for efficient querying by date
 CREATE INDEX idx_investments_created 
@@ -115,14 +118,14 @@ WHERE setting_key = 'security_code';
 -- Next steps:
 -- 1. Change your security code (see below)
 -- 2. Setup storage policies for screenshots (see STORAGE_SETUP.md)
--- 3. Test your app at http://localhost:3000
+-- 3. Test your app at http://localhost:5173
 -- ============================================================================
 
 -- ============================================================================
 -- OPTIONAL: CHANGE YOUR SECURITY CODE
 -- ============================================================================
 -- Uncomment and modify the line below to change your security code
--- Replace 'YOUR_NEW_CODE' with your desired code
+-- Replace 'YOUR_NEW_CODE' with your desired code (numbers only recommended)
 
 -- UPDATE public.app_settings 
 -- SET setting_value = 'YOUR_NEW_CODE', updated_at = NOW()
@@ -130,8 +133,8 @@ WHERE setting_key = 'security_code';
 
 -- Examples:
 -- UPDATE public.app_settings SET setting_value = '9876', updated_at = NOW() WHERE setting_key = 'security_code';
--- UPDATE public.app_settings SET setting_value = 'mySecret2024', updated_at = NOW() WHERE setting_key = 'security_code';
--- UPDATE public.app_settings SET setting_value = 'GoldTracker!', updated_at = NOW() WHERE setting_key = 'security_code';
+-- UPDATE public.app_settings SET setting_value = '123456', updated_at = NOW() WHERE setting_key = 'security_code';
+-- UPDATE public.app_settings SET setting_value = '0000', updated_at = NOW() WHERE setting_key = 'security_code';
 
 -- ============================================================================
 -- OPTIONAL: ADD BACKUP SECURITY CODE
@@ -139,7 +142,7 @@ WHERE setting_key = 'security_code';
 -- Uncomment to add a backup code (in case you forget your main code)
 
 -- INSERT INTO public.app_settings (setting_key, setting_value)
--- VALUES ('backup_code', 'emergency123')
+-- VALUES ('backup_code', '0000')
 -- ON CONFLICT (setting_key) DO UPDATE SET setting_value = EXCLUDED.setting_value;
 
 -- ============================================================================
@@ -156,9 +159,20 @@ WHERE setting_key = 'security_code';
 -- SELECT 
 --     currency,
 --     COUNT(*) as count,
---     SUM(amount) as total_amount
+--     SUM(amount) as total_amount,
+--     SUM(grams) as total_grams
 -- FROM public.investments
 -- GROUP BY currency;
+
+-- View investments with grams
+-- SELECT 
+--     created_at,
+--     amount,
+--     grams,
+--     currency
+-- FROM public.investments
+-- WHERE grams IS NOT NULL
+-- ORDER BY created_at DESC;
 
 -- View all settings
 -- SELECT * FROM public.app_settings;
@@ -168,6 +182,16 @@ WHERE setting_key = 'security_code';
 
 -- Reset security code to default
 -- UPDATE public.app_settings SET setting_value = '1234' WHERE setting_key = 'security_code';
+
+-- ============================================================================
+-- MIGRATION: If you already have data and need to add grams column
+-- ============================================================================
+-- If you're upgrading from an older version without grams column, run this:
+
+-- ALTER TABLE public.investments 
+-- ADD COLUMN IF NOT EXISTS grams NUMERIC(12, 4) CHECK (grams > 0);
+
+-- COMMENT ON COLUMN public.investments.grams IS 'Weight in grams (or pavan for gold)';
 
 -- ============================================================================
 -- END OF SETUP
