@@ -3,6 +3,7 @@ import { supabase, STORAGE_BUCKET } from '../lib/supabaseClient'
 
 export default function EntryForm({ onEntryAdded }) {
   const [amount, setAmount] = useState('')
+  const [grams, setGrams] = useState('')
   const [currency, setCurrency] = useState('Gold')
   const [receiptUrl, setReceiptUrl] = useState('')
   const [notes, setNotes] = useState('')
@@ -60,6 +61,15 @@ export default function EntryForm({ onEntryAdded }) {
         throw new Error('Amount must be a positive number')
       }
 
+      // Validate grams (optional)
+      let gramsNum = null
+      if (grams) {
+        gramsNum = parseFloat(grams)
+        if (isNaN(gramsNum) || gramsNum <= 0) {
+          throw new Error('Grams must be a positive number')
+        }
+      }
+
       let screenshotPath = null
 
       // Upload screenshot if provided
@@ -73,6 +83,7 @@ export default function EntryForm({ onEntryAdded }) {
         .insert([
           {
             amount: amountNum,
+            grams: gramsNum,
             currency,
             screenshot_path: screenshotPath,
             receipt_url: receiptUrl || null,
@@ -88,6 +99,7 @@ export default function EntryForm({ onEntryAdded }) {
 
       // Reset form
       setAmount('')
+      setGrams('')
       setCurrency('Gold')
       setReceiptUrl('')
       setNotes('')
@@ -164,6 +176,26 @@ export default function EntryForm({ onEntryAdded }) {
               <option value="Silver">Silver</option>
             </select>
           </div>
+        </div>
+
+        {/* Grams/Weight */}
+        <div>
+          <label htmlFor="grams" className="block text-sm font-medium text-gray-700 mb-1">
+            Weight in Grams {currency === 'Gold' ? '(or Pavan)' : ''} (optional)
+          </label>
+          <input
+            id="grams"
+            type="number"
+            step="0.0001"
+            min="0.0001"
+            placeholder={currency === 'Gold' ? '1.5 grams or 0.1875 pavan' : '10.5 grams'}
+            value={grams}
+            onChange={(e) => setGrams(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none"
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            {currency === 'Gold' ? 'Enter weight in grams or pavan (1 pavan = 8 grams)' : 'Enter weight in grams'}
+          </p>
         </div>
 
         {/* Screenshot Upload */}

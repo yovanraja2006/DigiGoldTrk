@@ -9,6 +9,8 @@ function Dashboard({ onAddClick, refreshTrigger }) {
     silverCount: 0,
     goldAmount: 0,
     silverAmount: 0,
+    goldGrams: 0,
+    silverGrams: 0,
     avgInvestment: 0,
     lastInvestment: null
   })
@@ -37,6 +39,8 @@ function Dashboard({ onAddClick, refreshTrigger }) {
       const silverEntries = data.filter(e => e.currency === 'Silver')
       const goldAmount = goldEntries.reduce((sum, e) => sum + parseFloat(e.amount), 0)
       const silverAmount = silverEntries.reduce((sum, e) => sum + parseFloat(e.amount), 0)
+      const goldGrams = goldEntries.reduce((sum, e) => sum + (parseFloat(e.grams) || 0), 0)
+      const silverGrams = silverEntries.reduce((sum, e) => sum + (parseFloat(e.grams) || 0), 0)
 
       setStats({
         totalInvested,
@@ -45,6 +49,8 @@ function Dashboard({ onAddClick, refreshTrigger }) {
         silverCount: silverEntries.length,
         goldAmount,
         silverAmount,
+        goldGrams,
+        silverGrams,
         avgInvestment: data.length > 0 ? totalInvested / data.length : 0,
         lastInvestment: data[0] || null
       })
@@ -131,8 +137,15 @@ function Dashboard({ onAddClick, refreshTrigger }) {
           <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1">
             ₹{stats.goldAmount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </div>
-          <div className="text-gray-500 text-xs sm:text-sm flex items-center gap-1">
-            <span>{stats.goldCount}</span>
+          <div className="text-gray-500 text-xs sm:text-sm">
+            <div className="flex items-center gap-1 mb-0.5">
+              <span>{stats.goldCount} {stats.goldCount === 1 ? 'entry' : 'entries'}</span>
+            </div>
+            {stats.goldGrams > 0 && (
+              <div className="text-yellow-700 font-medium">
+                {stats.goldGrams.toFixed(4)} g
+              </div>
+            )}
           </div>
         </div>
 
@@ -150,8 +163,15 @@ function Dashboard({ onAddClick, refreshTrigger }) {
           <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1">
             ₹{stats.silverAmount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </div>
-          <div className="text-gray-500 text-xs sm:text-sm flex items-center gap-1">
-            <span>{stats.silverCount}</span>
+          <div className="text-gray-500 text-xs sm:text-sm">
+            <div className="flex items-center gap-1 mb-0.5">
+              <span>{stats.silverCount} {stats.silverCount === 1 ? 'entry' : 'entries'}</span>
+            </div>
+            {stats.silverGrams > 0 && (
+              <div className="text-gray-700 font-medium">
+                {stats.silverGrams.toFixed(4)} g
+              </div>
+            )}
           </div>
         </div>
 
